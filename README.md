@@ -211,6 +211,3 @@ This lab strengthened my ability to interpret Wi-Fi management frames, distingui
 
 The most useful troubleshooting lesson was to treat an unsuccessful dictionary run as information about the tested candidate set. Changing the capitalization strategy produced a different result without changing the capture or target.
 
-For network-security and SOC work, the exercise reinforced the need to separate observed facts from broader conclusions. Successful association did not prove key possession, a dictionary failure did not establish password strength, and recovering a passphrase did not mean the encryption algorithm had been broken.
-
-I used ChatGPT to help explain protocol fields, suggest filters and commands, generate the capitalization script, and organize the write-up. I ran the lab steps and checked the results in Wireshark and Aircrack-ng. AI assistance was also disclosed in my course report.
