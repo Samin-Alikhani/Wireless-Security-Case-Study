@@ -12,7 +12,6 @@ An authorized graduate cybersecurity lab demonstrating how Wi-Fi management fram
 - [Validation and Results](#validation-and-results)
 - [Defensive Analysis](#defensive-analysis)
 - [What I Learned](#what-i-learned)
-- [Screenshots](#screenshots)
 
 ## Overview
 
@@ -64,6 +63,10 @@ The RSN element advertised PSK authentication, AES (CCM) and TKIP as pairwise op
 
 An important distinction was that `RSN Version: 1` describes the information-element format. It does not identify the connection as WPA version 1.
 
+![Coherer beacon with RSN and WPA security information](assets/beacon-security.png)
+
+*Figure 1. The beacon advertises RSN and original WPA security options.*
+
 ### Checking the Client's Selection
 
 I used the following display filter to inspect Association Requests:
@@ -83,6 +86,10 @@ Frame 82 contained an RSN element with one pairwise cipher and one authenticatio
 
 AES-CCMP and TKIP served different roles in this connection. The pairwise cipher protected individual client–AP traffic, while the group cipher protected AP broadcast and multicast traffic.
 
+![Association Request selecting RSN with AES-CCMP, TKIP group encryption, and PSK](assets/client-association.png)
+
+*Figure 2. Frame 82 selects AES-CCMP for pairwise traffic, TKIP for group traffic, and PSK authentication.*
+
 I then inspected the Association Response:
 
 ```text
@@ -90,6 +97,10 @@ wlan.fc.type_subtype == 0x01
 ```
 
 Frame 84 reported `Successful (0x0000)`. This established that the AP accepted association; it did not by itself prove that the client possessed the shared secret.
+
+![Association Response with a successful status code](assets/association-response.png)
+
+*Figure 3. Frame 84 confirms that the AP accepted association.*
 
 ### Examining the Four-Way Handshake
 
@@ -101,6 +112,10 @@ The `eapol` filter isolated four EAPOL-Key messages:
 | 2 | 89 | Client supplies SNonce and a MIC, allowing the AP to derive key material and check client key possession |
 | 3 | 92 | AP supplies a MIC and protected key data, including the group key |
 | 4 | 94 | Client acknowledges completion with a MIC |
+
+![Four EAPOL-Key messages visible in Wireshark](assets/four-way-handshake.png)
+
+*Figure 4. Frames 87, 89, 92, and 94 show messages 1–4 of the four-way handshake.*
 
 In passphrase-based WPA2-Personal, the passphrase and SSID are used to derive a Pairwise Master Key. The PMK, the two nonces, and the AP/client MAC addresses are then used to derive session-specific Pairwise Transient Key material.
 
@@ -199,31 +214,3 @@ The most useful troubleshooting lesson was to treat an unsuccessful dictionary r
 For network-security and SOC work, the exercise reinforced the need to separate observed facts from broader conclusions. Successful association did not prove key possession, a dictionary failure did not establish password strength, and recovering a passphrase did not mean the encryption algorithm had been broken.
 
 I used ChatGPT to help explain protocol fields, suggest filters and commands, generate the capitalization script, and organize the write-up. I ran the lab steps and checked the results in Wireshark and Aircrack-ng. AI assistance was also disclosed in my course report.
-
-## Screenshots
-
-These screenshots were extracted from my course report. They show the authorized lab network's protocol evidence. Terminal screenshots containing the recovered passphrase and derived keys, along with student-identifying report pages, are not included.
-
-### Advertised Security Options
-
-![Coherer beacon with RSN and WPA security information](assets/beacon-security.png)
-
-The AP advertised both RSN and original WPA information. The beacon described supported options rather than a particular client's selected settings.
-
-### Client Association Request
-
-![Association Request selecting RSN with AES-CCMP, TKIP group encryption, and PSK](assets/client-association.png)
-
-Frame 82 selected one pairwise cipher, AES-CCMP, while retaining TKIP as the group cipher.
-
-### Association Accepted
-
-![Association Response with a successful status code](assets/association-response.png)
-
-Frame 84 reported a successful association. The four-way handshake followed this step.
-
-### Four-Way Handshake
-
-![Four EAPOL-Key messages visible in Wireshark](assets/four-way-handshake.png)
-
-Frames 87, 89, 92, and 94 show messages 1–4 of the key exchange used for the offline analysis.
